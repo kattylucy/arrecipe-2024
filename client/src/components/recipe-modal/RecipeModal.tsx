@@ -5,9 +5,8 @@ import { useUpdateRecipe } from "queries/useUpdateRecipe";
 import { Modal } from "components/modal/Modal";
 import { TextInput } from "components/text-input/TextInput";
 import { useToast } from "hooks/useToast";
-import { DragAndDrop } from "components/drag-and-drop/DragAndDrop";
-import { Dropdown } from "components/dropdown/Dropdown";
 import { AutoComplete } from "components/autocomplete/Autocomplete";
+import { diets, intolerances } from "utilities/dummyData";
 
 const options = [
   { id: "side_dish", name: "Side Dish" },
@@ -42,20 +41,10 @@ const Body = styled.div({
   padding: 14,
 });
 
-const InputGroup = styled.div({
+const FlexWrapper = styled.div({
   display: "flex",
-  justifyContent: "space-between",
-  margin: "20px 0px",
+  marginTop: 18,
 });
-
-const Footer = styled.div(({ theme: { colors } }) => ({
-  background: colors.white,
-  bottom: 0,
-  padding: "12px 0px",
-  position: "sticky",
-  width: "100%",
-  marginTop: 20,
-}));
 
 export const RecipeModal = ({
   calories,
@@ -128,8 +117,6 @@ export const RecipeModal = ({
     setRecipe({});
   }, [closeModal, recipe, createRecipe, toast, upload, id]);
 
-  console.log(recipe);
-
   return (
     <Modal
       closeModal={closeModal}
@@ -146,12 +133,23 @@ export const RecipeModal = ({
           placeholder="Eg. “Spicy Chicken Pasta”"
           value={recipe.name}
         />
-        <AutoComplete
-          id="diet"
-          label="Diet Type"
-          placeholder="Eg. Gluten-Free"
-          setValues={setTypes}
-        />
+        <FlexWrapper>
+          <AutoComplete
+            id="diet"
+            label="Diet Type"
+            placeholder="Eg. Gluten-Free"
+            setValues={setTypes}
+            data={diets}
+            styles={{ marginRight: 12 }}
+          />
+          <AutoComplete
+            id="intolerance"
+            label="Intolerances"
+            placeholder="Eg. Dairy"
+            setValues={setTypes}
+            data={intolerances}
+          />
+        </FlexWrapper>
       </Body>
     </Modal>
   );

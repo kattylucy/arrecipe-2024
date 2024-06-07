@@ -1,19 +1,21 @@
 import { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
-import { diets } from "utilities/dummyData";
 import { Label } from "components/UI/Texts";
 import { Chip } from "components/chip/Chip";
 import { InputLabel } from "components/UI/Texts";
 
 interface AutocompleteProps {
+  data: Array<{ name: string }>;
   id: string;
   label: string;
   placeholder: string;
   setValues: (key: string, value: Array<string>) => void;
+  styles?: any;
 }
 
 const Container = styled.div({
   position: "relative",
+  width: "100%",
 });
 
 const InputWrapper = styled.div(({ theme: { colors } }) => ({
@@ -74,10 +76,12 @@ const ListContainer = styled.div({
 });
 
 export const AutoComplete = ({
+  data,
   id,
   label,
   placeholder,
   setValues,
+  styles,
 }: AutocompleteProps) => {
   const [inputValue, setInputValue] = useState<string>();
   const [list, setList] = useState<string[]>([]);
@@ -86,9 +90,9 @@ export const AutoComplete = ({
   const foundItems = useMemo(
     () =>
       !!inputValue
-        ? diets.filter((diet) => diet.name.toLowerCase().includes(inputValue))
+        ? data.filter((diet) => diet.name.toLowerCase().includes(inputValue))
         : [],
-    [inputValue]
+    [inputValue, data]
   );
 
   const onChange = useCallback(
@@ -123,7 +127,7 @@ export const AutoComplete = ({
   );
 
   return (
-    <Container>
+    <Container style={{ ...styles }}>
       <InputLabel htmlFor={id}>{label}</InputLabel>
       <InputWrapper>
         {list.length ? (
