@@ -1,4 +1,3 @@
-import { useMutation, useQueryClient } from "react-query";
 import { request } from "../utilities/request";
 
 const postData = async (id) => {
@@ -12,10 +11,11 @@ const postData = async (id) => {
 };
 
 const useDeleteRecipe = () => {
-  const queryClient = useQueryClient();
-  const deleteRecipeMutation = useMutation((id) => postData(id), {
-    onSuccess: () => queryClient.invalidateQueries(['recipes'], { refetchInactive: true })});
-  return deleteRecipeMutation;
+  // const queryClient = useQueryClient();
+  // const deleteRecipeMutation = useMutation((id) => postData(id), {
+  //   onSuccess: () => queryClient.invalidateQueries(['recipes'], { refetchInactive: true })});
+  // return deleteRecipeMutation;
+  return;
 };
 
 export default useDeleteRecipe;

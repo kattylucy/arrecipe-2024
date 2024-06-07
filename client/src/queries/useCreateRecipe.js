@@ -1,12 +1,11 @@
-import { useMutation, useQueryClient } from "react-query";
 import { request } from "../utilities/request";
 
 const postData = async (recipe) => {
   try {
     const data = await request("POST", "/recipes/create", recipe, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        "Content-Type": "multipart/form-data",
+      },
     });
     return data;
   } catch (error) {
@@ -16,9 +15,5 @@ const postData = async (recipe) => {
 };
 
 export const useCreateRecipe = () => {
-  const queryClient = useQueryClient();
-  const createRecipeMutation = useMutation((recipe) => postData(recipe), {
-    onSuccess: () => queryClient.invalidateQueries(['recipes'], { refetchInactive: true })
-  });
-  return createRecipeMutation;
+  return;
 };

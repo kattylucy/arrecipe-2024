@@ -1,8 +1,8 @@
 const express = require("express");
-const { getAllDiet } = require("../controllers/dietController");
+const { getAllTags } = require("../controllers/tagsController");
 const router = express.Router();
 
 // Route to fetch all
-router.get("/", getAllDiet);
+router.get("/", getAllTags);
 
 module.exports = router;

@@ -1,4 +1,3 @@
-import { useMutation, useQueryClient } from "react-query";
 import { request } from "../utilities/request";
 
 const putData = async (id, recipe) => {
@@ -12,8 +11,8 @@ const putData = async (id, recipe) => {
 };
 
 export const useUpdateRecipe = () => {
-  const queryClient = useQueryClient();
-  const updateRecipeMutation = useMutation(({ id, recipe }) => putData(id, recipe), {
-    onSuccess: () => queryClient.invalidateQueries(['recipes'], { refetchInactive: true })});
-  return updateRecipeMutation;
+  // const queryClient = useQueryClient();
+  // const updateRecipeMutation = useMutation(({ id, recipe }) => putData(id, recipe), {
+  //   onSuccess: () => queryClient.invalidateQueries(['recipes'], { refetchInactive: true })});
+  return;
 };
