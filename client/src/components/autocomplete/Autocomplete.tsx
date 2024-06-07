@@ -1,16 +1,19 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useRef } from "react";
 import styled from "styled-components";
 import { Label } from "components/UI/Texts";
 import { Chip } from "components/chip/Chip";
 import { InputLabel } from "components/UI/Texts";
+import { useGetTypes } from "queries/useGetTypes";
+import { useDebounce } from "hooks/useDebounce";
+import useOutsideClick from "hooks/useOutsideClick";
 
 interface AutocompleteProps {
-  data: Array<{ name: string }>;
   id: string;
   label: string;
   placeholder: string;
   setValues: (key: string, value: Array<string>) => void;
   styles?: any;
+  fetchUrl: string;
 }
 
 const Container = styled.div({
@@ -73,23 +76,33 @@ const DropdownWrapper = styled.div(({ theme: { colors } }) => ({
 
 const ListContainer = styled.div({
   display: "flex",
+  flexWrap: "wrap",
 });
 
 export const AutoComplete = ({
-  data,
   id,
   label,
   placeholder,
   setValues,
   styles,
+  fetchUrl,
 }: AutocompleteProps) => {
+  const ref = useRef<HTMLDivElement>(null);
   const [inputValue, setInputValue] = useState<string>();
   const [list, setList] = useState<string[]>([]);
   const [visible, setVisible] = useState<boolean>(false);
+  const debouncedSearchTerm = useDebounce(inputValue, 500);
+  const { data = [], isLoading } = useGetTypes({
+    url: fetchUrl,
+    search: debouncedSearchTerm,
+    enabled: !!fetchUrl && !!debouncedSearchTerm,
+  });
+
+  useOutsideClick(ref, () => setVisible(false));
 
   const foundItems = useMemo(
     () =>
-      !!inputValue
+      !!inputValue && !isLoading
         ? data.filter((diet) => diet.name.toLowerCase().includes(inputValue))
         : [],
     [inputValue, data]
@@ -130,19 +143,6 @@ export const AutoComplete = ({
     <Container style={{ ...styles }}>
       <InputLabel htmlFor={id}>{label}</InputLabel>
       <InputWrapper>
-        {list.length ? (
-          <ListContainer>
-            {list.map((item, index) => (
-              <Chip
-                onDelete={() => onDelete(item)}
-                title={item}
-                key={`list-${item}-${index}`}
-              />
-            ))}
-          </ListContainer>
-        ) : (
-          <></>
-        )}
         <Input
           id={id}
           onChange={onChange}
@@ -150,8 +150,22 @@ export const AutoComplete = ({
           value={inputValue}
         />
       </InputWrapper>
+      {list.length ? (
+        <ListContainer>
+          {list.map((item, index) => (
+            <Chip
+              onDelete={() => onDelete(item)}
+              title={item}
+              key={`list-${item}-${index}`}
+              styles={{ marginTop: 4, marginBottom: 4, marginRight: 4 }}
+            />
+          ))}
+        </ListContainer>
+      ) : (
+        <></>
+      )}
       {visible && foundItems.length ? (
-        <DropdownWrapper>
+        <DropdownWrapper ref={ref}>
           {foundItems?.map((item, index) => (
             <Label
               onClick={() => addToList(item.name)}

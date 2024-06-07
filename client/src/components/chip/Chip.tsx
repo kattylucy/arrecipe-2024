@@ -5,6 +5,7 @@ import { Icon } from "components/icon/Icon";
 interface ChipProps {
   title: string;
   onDelete?: () => void;
+  styles?: any;
 }
 
 const Container = styled.div(({ theme: { colors } }) => ({
@@ -17,17 +18,17 @@ const Container = styled.div(({ theme: { colors } }) => ({
   alignItems: "center",
 }));
 
-export const Chip = ({ title, onDelete }: ChipProps) => {
-  return (
-    <Container>
-      <Label color="black">{title}</Label>
-      {onDelete && (
-        <Icon
-          onClick={onDelete}
-          icon="closed"
-          styles={{ width: 16, height: 16, marginLeft: 4 }}
-        />
-      )}
-    </Container>
-  );
-};
+export const Chip = ({ title, onDelete, styles }: ChipProps) => (
+  <Container style={{ ...styles }}>
+    <Label extraSmall color="black">
+      {title}
+    </Label>
+    {onDelete && (
+      <Icon
+        onClick={onDelete}
+        icon="closed"
+        styles={{ width: 16, height: 16, marginLeft: 4, cursor: "pointer" }}
+      />
+    )}
+  </Container>
+);

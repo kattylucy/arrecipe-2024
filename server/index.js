@@ -21,8 +21,18 @@ mongoose.connection.on("connected", () => {
 });
 
 const dietRoute = require("./routes/diet");
+const recipesRoute = require("./routes/recipe");
+const ingredientsRoute = require("./routes/ingredients");
+const intolerancesRoute = require("./routes/intolerances");
+const tagsRoute = require("./routes/tags");
+const cuisineRoute = require("./routes/cuisine");
 
+app.use("/api/recipes", recipesRoute);
+app.use("/api/ingredients", ingredientsRoute);
+app.use("/api/intolerances", intolerancesRoute);
 app.use("/api/diets", dietRoute);
+app.use("/api/tags", tagsRoute);
+app.use("/api/cuisine", cuisineRoute);
 
 app.get("/", (req, res) => {
   res.send("Hello World");

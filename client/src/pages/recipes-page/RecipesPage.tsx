@@ -28,13 +28,7 @@ const RecipesPage = () => {
     tags: {},
     query: "",
   });
-  const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useGetRandomRecipes("pasta");
   const [isMobileView] = useWindowDimensions();
-  const recipeList = useMemo(
-    () => (isEmpty(data) ? [] : data.pages[0].results),
-    [data]
-  );
 
   const createFilters = useCallback(
     (value: any, label: string) => {
@@ -66,11 +60,6 @@ const RecipesPage = () => {
     return (
       <div>
         <Header />
-        <Recipes
-          isMobileView={isMobileView}
-          isLoading={isLoading}
-          recipes={recipeList}
-        />
         <Filters
           createFilters={createFilters}
           isMobileView={isMobileView}
@@ -86,14 +75,7 @@ const RecipesPage = () => {
       <Header />
       <BodyContainer>
         <Filters createFilters={createFilters} filters={filters} sticky />
-        <Cards>
-          <Recipes isLoading={isLoading} recipes={recipeList} />
-          {isFetchingNextPage && (
-            <Label fontWeight={600} margin={20} textAlign="center">
-              Loading...
-            </Label>
-          )}
-        </Cards>
+        <Cards></Cards>
       </BodyContainer>
     </>
   );

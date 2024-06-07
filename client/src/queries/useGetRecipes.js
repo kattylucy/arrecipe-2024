@@ -15,22 +15,21 @@ const fetchData = async (filters, pageParam) => {
   }
 };
 const useGetRecipes = (filter) => {
-  const query = useInfiniteQuery(
-    ["recipes", filter],
-    ({ pageParam = 1 }) => fetchData(filter, pageParam),
-    {
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      getNextPageParam: (lastPage, allPages) => {
-        const nextPage =
-          lastPage.length === LIMIT ? allPages.length + 1 : undefined;
-        return nextPage;
-      },
-    },
-    [filter]
-  );
-
-  return { ...query };
+  // const query = useInfiniteQuery(
+  //   ["recipes", filter],
+  //   ({ pageParam = 1 }) => fetchData(filter, pageParam),
+  //   {
+  //     refetchOnMount: false,
+  //     refetchOnWindowFocus: false,
+  //     getNextPageParam: (lastPage, allPages) => {
+  //       const nextPage =
+  //         lastPage.length === LIMIT ? allPages.length + 1 : undefined;
+  //       return nextPage;
+  //     },
+  //   },
+  //   [filter]
+  // );
+  // return { ...query };
 };
 
 export default useGetRecipes;
