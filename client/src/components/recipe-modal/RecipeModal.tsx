@@ -4,10 +4,10 @@ import { useCreateRecipe } from "queries/useCreateRecipe";
 import { useUpdateRecipe } from "queries/useUpdateRecipe";
 import { Modal } from "components/modal/Modal";
 import { TextInput } from "components/text-input/TextInput";
-import { Button } from "components/button/Button";
 import { useToast } from "hooks/useToast";
 import { DragAndDrop } from "components/drag-and-drop/DragAndDrop";
 import { Dropdown } from "components/dropdown/Dropdown";
+import { AutoComplete } from "components/autocomplete/Autocomplete";
 
 const options = [
   { id: "side_dish", name: "Side Dish" },
@@ -93,17 +93,9 @@ export const RecipeModal = ({
     [setRecipe, recipe]
   );
 
-  const addType = useCallback(
-    (value) => {
-      const { id } = value;
-      setRecipe({ ...recipe, tag: id });
-    },
-    [setRecipe, recipe]
-  );
-
-  const onUpload = useCallback(
-    (image) => {
-      setUpload(image);
+  const setTypes = useCallback(
+    (key: string, value: Array<string>) => {
+      setRecipe({ ...recipe, [key]: value });
     },
     [setRecipe, recipe]
   );
@@ -136,69 +128,30 @@ export const RecipeModal = ({
     setRecipe({});
   }, [closeModal, recipe, createRecipe, toast, upload, id]);
 
+  console.log(recipe);
+
   return (
     <Modal
       closeModal={closeModal}
-      title="New recipe"
       key={id}
       visible={visible}
-      styles={{ maxHeight: "90vh" }}
+      styles={{ height: "90vh" }}
+      width={"90%"}
     >
       <Body>
-        {!isEditing && (
-          <DragAndDrop
-            label="Image"
-            onUpload={onUpload}
-            style={{ marginBottom: 20 }}
-          />
-        )}
         <TextInput
           id="name"
-          label="Name"
+          label="Recipe Name"
           onChange={addValue}
           placeholder="Eg. “Spicy Chicken Pasta”"
           value={recipe.name}
         />
-        <InputGroup>
-          <TextInput
-            id="calories_count"
-            label="Kcal per serving"
-            onChange={addValue}
-            placeholder="Eg. “524”"
-            value={recipe.calories_count}
-          />
-          <TextInput
-            id="cooking_time"
-            label="Time to prepare"
-            onChange={addValue}
-            placeholder="Eg. “32”"
-            value={recipe.cooking_time}
-          />
-        </InputGroup>
-        <TextInput
-          id="url"
-          label="Recipe URL"
-          onChange={addValue}
-          placeholder="https://instagram.com/url"
-          style={{ marginBottom: 20 }}
-          value={recipe.url}
+        <AutoComplete
+          id="diet"
+          label="Diet Type"
+          placeholder="Eg. Gluten-Free"
+          setValues={setTypes}
         />
-        <Dropdown
-          label="Type"
-          onSelect={addType}
-          options={options}
-          value={tag}
-        />
-        <Footer>
-          <Button
-            disabled={isDisabled}
-            onClick={newRecipe}
-            styles={{ marginTop: 20, height: 56, width: "100%" }}
-            variant="contained"
-          >
-            {isEditing ? "Edit Recipe" : "Create Recipe"}
-          </Button>
-        </Footer>
       </Body>
     </Modal>
   );

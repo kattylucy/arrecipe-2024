@@ -4,6 +4,7 @@ import { Icons } from "./Icons.js";
 interface IconProps {
   icon: string;
   styles?: React.CSSProperties;
+  onClick?: () => void;
 }
 
 const StyledIcon = styled.img<{ styles: any }>(({ styles }) => ({
@@ -12,6 +13,6 @@ const StyledIcon = styled.img<{ styles: any }>(({ styles }) => ({
   ...styles,
 }));
 
-export const Icon = ({ icon, styles, ...props }: IconProps) => (
-  <StyledIcon src={Icons[icon]} styles={styles} {...props} />
+export const Icon = ({ icon, styles, onClick, ...props }: IconProps) => (
+  <StyledIcon onClick={onClick} src={Icons[icon]} styles={styles} {...props} />
 );

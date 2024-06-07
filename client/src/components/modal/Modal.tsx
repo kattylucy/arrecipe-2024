@@ -11,12 +11,12 @@ const defaultProps = {
   width: "30%",
 };
 
-const dropIn = {
+const dropIn = (width) => ({
   hidden: {
     width: 0,
   },
   visible: {
-    width: "30%",
+    width: width || "30%",
     transition: {
       duration: 0.1,
       type: "spring",
@@ -27,12 +27,12 @@ const dropIn = {
   exit: {
     width: 0,
   },
-};
+});
 
 interface ModalProps {
   closeModal: () => void;
   children: any;
-  title: string;
+  title?: string;
   styles: React.CSSProperties;
   visible: boolean;
   width?: string;
@@ -105,7 +105,7 @@ export const Modal = ({
         >
           <ModalBody
             className="modal orange-gradient"
-            variants={dropIn}
+            variants={dropIn(width)}
             initial="hidden"
             animate="visible"
             exit="exit"

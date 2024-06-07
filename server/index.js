@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 6000;
+const port = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
@@ -19,6 +19,10 @@ mongoose.connect(process.env.MONGO_URI, {
 mongoose.connection.on("connected", () => {
   console.log("Connected to MongoDB");
 });
+
+const dietRoute = require("./routes/diet");
+
+app.use("/api/diets", dietRoute);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
