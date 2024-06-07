@@ -1,12 +1,13 @@
 import { useCallback, useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import flatMap from "lodash/flatMap";
-import useGetRecipes from "queries/useGetRecipes";
+import useGetRandomRecipes from "queries/useGetRandomRecipes";
 import { Filters } from "components/filters/Filters";
 import { Label } from "components/UI/Texts";
 import useWindowDimensions from "hooks/useWindowDimensions";
 import { Header } from "./Header";
 import { Recipes } from "./Recipes";
+import { isEmpty } from "lodash";
 
 const BodyContainer = styled.div({
   display: "flex",
@@ -28,10 +29,10 @@ const RecipesPage = () => {
     query: "",
   });
   const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useGetRecipes(filters);
+    useGetRandomRecipes("pasta");
   const [isMobileView] = useWindowDimensions();
   const recipeList = useMemo(
-    () => (data?.pages ? flatMap(data.pages) : []),
+    () => (isEmpty(data) ? [] : data.pages[0].results),
     [data]
   );
 
@@ -41,24 +42,25 @@ const RecipesPage = () => {
     },
     [setFilters]
   );
-  const handleScroll = useCallback(() => {
-    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-    if (
-      scrollTop + clientHeight >= scrollHeight &&
-      hasNextPage &&
-      !isFetchingNextPage
-    ) {
-      fetchNextPage();
-    }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  useEffect(() => {
-    document.addEventListener("scroll", handleScroll);
+  // const handleScroll = useCallback(() => {
+  //   const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+  //   if (
+  //     scrollTop + clientHeight >= scrollHeight &&
+  //     hasNextPage &&
+  //     !isFetchingNextPage
+  //   ) {
+  //     fetchNextPage();
+  //   }
+  // }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-    return () => {
-      document.removeEventListener("scroll", handleScroll);
-    };
-  }, [handleScroll]);
+  // useEffect(() => {
+  //   document.addEventListener("scroll", handleScroll);
+
+  //   return () => {
+  //     document.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, [handleScroll]);
 
   if (isMobileView) {
     return (
@@ -84,7 +86,7 @@ const RecipesPage = () => {
       <Header />
       <BodyContainer>
         <Filters createFilters={createFilters} filters={filters} sticky />
-        <Cards onScroll={handleScroll}>
+        <Cards>
           <Recipes isLoading={isLoading} recipes={recipeList} />
           {isFetchingNextPage && (
             <Label fontWeight={600} margin={20} textAlign="center">

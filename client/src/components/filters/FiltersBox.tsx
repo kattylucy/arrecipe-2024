@@ -94,8 +94,6 @@ export const FiltersBox = ({
     [createFilters, tags]
   );
 
-  console.log(caloriesCount > 0);
-
   return (
     <FiltersContainer sticky={sticky}>
       <SearchBar

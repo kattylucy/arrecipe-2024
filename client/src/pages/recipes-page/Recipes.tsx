@@ -48,6 +48,7 @@ export const Recipes = ({ isLoading, isMobileView, recipes }: RecipesProps) => {
       </NoResults>
     );
   }
+
   return (
     <Wrapper>
       {recipes.map((recipe) => (
