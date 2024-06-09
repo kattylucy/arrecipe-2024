@@ -1,10 +1,14 @@
 import { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
+import { isEmpty } from "lodash";
 import { Modal } from "components/modal/Modal";
 import { TextInput } from "components/text-input/TextInput";
 import { AutoComplete } from "components/autocomplete/Autocomplete";
 import { ChipList } from "components/chip-list/ChipList";
+import { InputLabel } from "components/UI/Texts";
+import { Button } from "components/button/Button";
 import { useGetTypes } from "queries/useGetTypes";
+import { InstructionsView } from "./InstructionsView";
 
 type CreateRecipeModalProps = {
   calories?: string;
@@ -19,17 +23,32 @@ type CreateRecipeModalProps = {
   visible: boolean;
 };
 
+interface ListItem {
+  name: string;
+  _id: string;
+}
+
 interface RecipeType {
-  calories_count?: string;
-  cooking_time?: string;
-  url?: string;
   name?: string;
-  thumbnail?: string;
-  tag?: string;
+  prepTime?: string;
+  caloriesPerServing?: string;
+  servingSize?: string;
+  diet?: ListItem[];
+  intolerance?: ListItem[];
+  ingredients?: ListItem[];
+  cuisine?: ListItem[];
+  tags?: object;
+  instructions?: Array<{ label: string; text: string }>;
 }
 
 const Body = styled.div({
   padding: 14,
+});
+
+const Footer = styled.div({
+  display: "flex",
+  justifyContent: "space-between",
+  marginTop: 40,
 });
 
 const fields = [
@@ -51,15 +70,9 @@ const fields = [
     placeholder: "Eg. Argentinian",
     fetchUrl: "cuisine",
   },
-  {
-    id: "ingredients",
-    label: "Ingredients",
-    placeholder: "Eg. cheese",
-    fetchUrl: "ingredients",
-  },
 ];
 
-export const RecipeModal = ({
+export const RecipeModal: React.FC<CreateRecipeModalProps> = ({
   calories,
   cookingTime,
   id,
@@ -69,57 +82,158 @@ export const RecipeModal = ({
   tag,
   closeModal,
   visible,
-}: CreateRecipeModalProps) => {
+}) => {
+  const [view, setView] = useState<number>(0);
   const [recipe, setRecipe] = useState<RecipeType>({});
   const { data: chipList, isLoading } = useGetTypes({
     url: "/tags",
     enabled: true,
   });
 
-  const addValue = useCallback(
-    (e: any) => {
-      const { id, value } = e.target;
-      setRecipe({ ...recipe, [id]: value });
-    },
-    [setRecipe, recipe]
-  );
+  const addValue = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setRecipe((prevRecipe) => ({ ...prevRecipe, [id]: value }));
+  }, []);
 
-  const setTypes = useCallback(
-    (key: string, value: Array<string>) => {
-      setRecipe({ ...recipe, [key]: value });
-    },
-    [setRecipe, recipe]
-  );
+  const setTypes = useCallback((key: string, value: Array<object>) => {
+    setRecipe((prevRecipe) => ({ ...prevRecipe, [key]: value }));
+  }, []);
+
+  const handleNext = useCallback(() => {
+    if (view === 4) {
+      console.log("create recipe", recipe);
+    } else {
+      setView(view + 1);
+    }
+  }, [view, recipe]);
+
+  const handleDisabledButton = useMemo(() => {
+    if (view === 0) {
+      return (
+        !recipe.name ||
+        isEmpty(recipe.diet) ||
+        isEmpty(recipe.intolerance) ||
+        isEmpty(recipe.cuisine)
+      );
+    }
+
+    if (view === 1) {
+      return (
+        !recipe.caloriesPerServing || !recipe.servingSize || !recipe.prepTime
+      );
+    }
+
+    if (view === 2) {
+      return isEmpty(recipe.tags);
+    }
+
+    if (view === 3) {
+      return isEmpty(recipe.ingredients);
+    }
+
+    if (view === 4) {
+      return isEmpty(recipe.instructions);
+    }
+
+    return false;
+  }, [view, recipe]);
 
   return (
     <Modal
       closeModal={closeModal}
       key={id}
       visible={visible}
-      styles={{ height: "90vh" }}
       width="30%"
+      styles={{ maxHeight: "85vh" }}
     >
       <Body>
-        <TextInput
-          id="name"
-          label="Recipe Name"
-          onChange={addValue}
-          placeholder="Eg. “Spicy Chicken Pasta”"
-          value={recipe.name}
-        />
-        {fields.map((field) => {
-          return (
-            <AutoComplete
-              id={field.id}
-              label={field.label}
-              placeholder={field.placeholder}
-              setValues={setTypes}
-              fetchUrl={field.fetchUrl}
+        {view === 0 && (
+          <>
+            <TextInput
+              id="name"
+              label="Recipe Name"
+              onChange={addValue}
+              placeholder="Eg. “Spicy Chicken Pasta”"
+              value={recipe.name || ""}
+            />
+            {fields.map((field) => (
+              <AutoComplete
+                key={field.id}
+                id={field.id}
+                label={field.label}
+                placeholder={field.placeholder}
+                setValues={setTypes}
+                fetchUrl={field.fetchUrl}
+                styles={{ margin: "12px 0px" }}
+                defaultValue={
+                  recipe[field.id as keyof RecipeType] as ListItem[]
+                }
+              />
+            ))}
+          </>
+        )}
+        {view === 1 && (
+          <>
+            <TextInput
+              id="prepTime"
+              label="Preparation Time"
+              onChange={addValue}
+              placeholder="Eg. 20 minutes"
+              value={recipe.prepTime || ""}
               styles={{ margin: "12px 0px" }}
             />
-          );
-        })}
-        <ChipList list={chipList} />
+            <TextInput
+              id="caloriesPerServing"
+              label="Calories Per Serving"
+              onChange={addValue}
+              placeholder="Eg. 250 kcal"
+              value={recipe.caloriesPerServing || ""}
+              styles={{ margin: "12px 0px" }}
+            />
+            <TextInput
+              id="servingSize"
+              label="Serving Size"
+              onChange={addValue}
+              placeholder="Eg. 4"
+              value={recipe.servingSize || ""}
+              styles={{ margin: "12px 0px" }}
+            />
+          </>
+        )}
+        {view === 2 && (
+          <>
+            <InputLabel>Select Recipe Tags</InputLabel>
+            <ChipList id="tags" list={chipList} setValues={setTypes} />
+          </>
+        )}
+        {view === 3 && (
+          <AutoComplete
+            id="ingredients"
+            label="Ingredients"
+            placeholder="Eg. cheese"
+            setValues={setTypes}
+            fetchUrl="ingredients"
+            styles={{ margin: "12px 0px" }}
+            defaultValue={recipe.ingredients}
+          />
+        )}
+        {view === 4 && <InstructionsView onChange={setTypes} />}
+        <Footer>
+          <Button
+            disabled={view === 0}
+            variant="text"
+            onClick={() => setView(view - 1)}
+          >
+            Back
+          </Button>
+          <Button
+            disabled={handleDisabledButton}
+            variant="text"
+            onClick={handleNext}
+          >
+            {view === 4 ? "Create" : "Next"}
+          </Button>
+        </Footer>
       </Body>
     </Modal>
   );

@@ -33,7 +33,7 @@ interface ModalProps {
   closeModal: () => void;
   children: any;
   title?: string;
-  styles: React.CSSProperties;
+  styles?: React.CSSProperties;
   visible: boolean;
   width?: string;
 }

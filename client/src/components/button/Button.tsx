@@ -31,7 +31,7 @@ const StyledButton = styled.button<{
   color: variant === "contained" ? colors.white : colors.black,
   cursor: disabled ? "not-allowed" : "pointer",
   display: variant === "icon" ? "flex" : undefined,
-  padding: withHover ? 6 : 0,
+  padding: 6,
   opacity: disabled ? 0.5 : 1,
   fontSize: 14,
   "& > img": {

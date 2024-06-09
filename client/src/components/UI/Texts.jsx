@@ -27,6 +27,16 @@ export const H3 = styled.h3(
   })
 );
 
+export const H2 = styled.h2(
+  ({ color = "black", theme: { colors, fonts }, ...props }) => ({
+    fontFamily: fonts.main,
+    margin: 0,
+    color: colors[color],
+    fontSize: "1.125rem",
+    ...props,
+  })
+);
+
 export const InputLabel = styled.label(
   ({ color = "black", theme: { colors, fonts }, ...props }) => ({
     color: colors[color],

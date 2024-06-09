@@ -9,13 +9,14 @@ interface ChipProps {
 }
 
 const Container = styled.div(({ theme: { colors } }) => ({
-  backgroundColor: colors.gray,
-  opacity: 0.3,
+  backgroundColor: colors.white,
+  opacity: 0.5,
   padding: "8px 12px",
   margin: "0px 8px",
   borderRadius: 8,
   display: "flex",
   alignItems: "center",
+  border: colors.border,
 }));
 
 export const Chip = ({ title, onDelete, styles }: ChipProps) => (
