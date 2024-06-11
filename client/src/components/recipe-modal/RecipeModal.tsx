@@ -8,7 +8,9 @@ import { ChipList } from "components/chip-list/ChipList";
 import { InputLabel } from "components/UI/Texts";
 import { Button } from "components/button/Button";
 import { useGetTypes } from "queries/useGetTypes";
-import { InstructionsView } from "./InstructionsView";
+import { useRecipeContext } from "context/recipeContext";
+import { SizeSelectorComponent } from "./SizeSelectorComponent";
+import { IngredientsView } from "./IngredientsView";
 
 type CreateRecipeModalProps = {
   calories?: string;
@@ -48,7 +50,7 @@ const Body = styled.div({
 const Footer = styled.div({
   display: "flex",
   justifyContent: "space-between",
-  marginTop: 40,
+  margin: 20,
 });
 
 const fields = [
@@ -84,7 +86,7 @@ export const RecipeModal: React.FC<CreateRecipeModalProps> = ({
   visible,
 }) => {
   const [view, setView] = useState<number>(0);
-  const [recipe, setRecipe] = useState<RecipeType>({});
+  const { recipe, setRecipe } = useRecipeContext();
   const { data: chipList, isLoading } = useGetTypes({
     url: "/tags",
     enabled: true,
@@ -95,9 +97,12 @@ export const RecipeModal: React.FC<CreateRecipeModalProps> = ({
     setRecipe((prevRecipe) => ({ ...prevRecipe, [id]: value }));
   }, []);
 
-  const setTypes = useCallback((key: string, value: Array<object>) => {
-    setRecipe((prevRecipe) => ({ ...prevRecipe, [key]: value }));
-  }, []);
+  const setTypes = useCallback(
+    (key: string, value: Array<ListItem>) => {
+      setRecipe({ ...recipe, [key]: value });
+    },
+    [recipe]
+  );
 
   const handleNext = useCallback(() => {
     if (view === 4) {
@@ -107,47 +112,36 @@ export const RecipeModal: React.FC<CreateRecipeModalProps> = ({
     }
   }, [view, recipe]);
 
+  const handleBack = useCallback(() => {
+    setView((prevView) => Math.max(prevView - 1, 0));
+  }, []);
+
   const handleDisabledButton = useMemo(() => {
-    if (view === 0) {
-      return (
-        !recipe.name ||
-        isEmpty(recipe.diet) ||
-        isEmpty(recipe.intolerance) ||
-        isEmpty(recipe.cuisine)
-      );
+    switch (view) {
+      case 0:
+        return (
+          !recipe.name ||
+          isEmpty(recipe.diet) ||
+          isEmpty(recipe.intolerance) ||
+          isEmpty(recipe.cuisine)
+        );
+      case 1:
+        return (
+          !recipe.caloriesPerServing || !recipe.servingSize || !recipe.prepTime
+        );
+      case 2:
+        return isEmpty(recipe.tags);
+      case 3:
+        return isEmpty(recipe.ingredients);
+      default:
+        return false;
     }
-
-    if (view === 1) {
-      return (
-        !recipe.caloriesPerServing || !recipe.servingSize || !recipe.prepTime
-      );
-    }
-
-    if (view === 2) {
-      return isEmpty(recipe.tags);
-    }
-
-    if (view === 3) {
-      return isEmpty(recipe.ingredients);
-    }
-
-    if (view === 4) {
-      return isEmpty(recipe.instructions);
-    }
-
-    return false;
   }, [view, recipe]);
 
-  return (
-    <Modal
-      closeModal={closeModal}
-      key={id}
-      visible={visible}
-      width="30%"
-      styles={{ maxHeight: "85vh" }}
-    >
-      <Body>
-        {view === 0 && (
+  const renderView = useCallback(() => {
+    switch (view) {
+      case 0:
+        return (
           <>
             <TextInput
               id="name"
@@ -166,75 +160,76 @@ export const RecipeModal: React.FC<CreateRecipeModalProps> = ({
                 fetchUrl={field.fetchUrl}
                 styles={{ margin: "12px 0px" }}
                 defaultValue={
-                  recipe[field.id as keyof RecipeType] as ListItem[]
+                  (recipe[field.id as keyof RecipeType] as ListItem[]) || []
                 }
               />
             ))}
           </>
-        )}
-        {view === 1 && (
+        );
+      case 1:
+        return (
           <>
-            <TextInput
-              id="prepTime"
-              label="Preparation Time"
-              onChange={addValue}
-              placeholder="Eg. 20 minutes"
-              value={recipe.prepTime || ""}
-              styles={{ margin: "12px 0px" }}
-            />
-            <TextInput
-              id="caloriesPerServing"
-              label="Calories Per Serving"
-              onChange={addValue}
-              placeholder="Eg. 250 kcal"
-              value={recipe.caloriesPerServing || ""}
-              styles={{ margin: "12px 0px" }}
-            />
-            <TextInput
+            <SizeSelectorComponent
               id="servingSize"
-              label="Serving Size"
-              onChange={addValue}
-              placeholder="Eg. 4"
-              value={recipe.servingSize || ""}
-              styles={{ margin: "12px 0px" }}
+              starts={1}
+              label="Serving"
+              onChange={setTypes}
+            />
+            <SizeSelectorComponent
+              onChange={setTypes}
+              id="prepTime"
+              starts={30}
+              label="Minute"
+            />
+            <SizeSelectorComponent
+              id="caloriesPerServing"
+              starts={50}
+              label="Calorie"
+              onChange={setTypes}
             />
           </>
-        )}
-        {view === 2 && (
+        );
+      case 2:
+        return (
           <>
             <InputLabel>Select Recipe Tags</InputLabel>
             <ChipList id="tags" list={chipList} setValues={setTypes} />
           </>
-        )}
-        {view === 3 && (
-          <AutoComplete
-            id="ingredients"
-            label="Ingredients"
-            placeholder="Eg. cheese"
-            setValues={setTypes}
-            fetchUrl="ingredients"
-            styles={{ margin: "12px 0px" }}
+        );
+      case 3:
+        return (
+          <IngredientsView
             defaultValue={recipe.ingredients}
+            onChange={setTypes}
           />
-        )}
-        {view === 4 && <InstructionsView onChange={setTypes} />}
-        <Footer>
-          <Button
-            disabled={view === 0}
-            variant="text"
-            onClick={() => setView(view - 1)}
-          >
-            Back
-          </Button>
-          <Button
-            disabled={handleDisabledButton}
-            variant="text"
-            onClick={handleNext}
-          >
-            {view === 4 ? "Create" : "Next"}
-          </Button>
-        </Footer>
-      </Body>
+        );
+      default:
+        return null;
+    }
+  }, [view, recipe, addValue, setTypes, chipList]);
+
+  return (
+    <Modal
+      closeModal={closeModal}
+      key={id}
+      visible={visible}
+      width="30%"
+      styles={{ maxHeight: "85vh" }}
+      title="Create Recipe"
+    >
+      <Body>{renderView()}</Body>
+      <Footer>
+        <Button disabled={view === 0} variant="text" onClick={handleBack}>
+          Back
+        </Button>
+        <Button
+          disabled={handleDisabledButton}
+          variant="text"
+          onClick={handleNext}
+        >
+          {view === 3 ? "Preview" : "Next"}
+        </Button>
+      </Footer>
     </Modal>
   );
 };

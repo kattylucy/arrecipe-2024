@@ -10,6 +10,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   value: any;
   styles?: any;
   multiline?: boolean;
+  inputStyles?: any;
 }
 
 const InputContainer = styled.div({
@@ -52,6 +53,7 @@ export const TextInput = ({
   value,
   styles,
   multiline,
+  inputStyles,
   ...props
 }: InputProps) => {
   const Component = multiline ? StyledTextArea : StyledInput;
@@ -65,6 +67,7 @@ export const TextInput = ({
         onChange={onChange}
         type="text"
         value={value}
+        style={{ ...inputStyles }}
       />
     </InputContainer>
   );

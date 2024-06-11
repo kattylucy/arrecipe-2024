@@ -12,6 +12,7 @@ interface DropdownMenuProps {
   onSelect: (value: { id: string; name: string }) => void;
   placeholder?: string;
   value?: string;
+  boxStyles?: any;
 }
 
 const DropdownContainer = styled.div(({ theme: { colors } }) => ({
@@ -61,6 +62,7 @@ export const Dropdown = ({
   onSelect,
   placeholder,
   value,
+  boxStyles,
   ...props
 }: DropdownMenuProps) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -88,7 +90,7 @@ export const Dropdown = ({
   return (
     <DropdownContainer onClick={toggle} {...props} ref={ref}>
       <InputLabel>{label}</InputLabel>
-      <Container>
+      <Container style={{ ...boxStyles }}>
         <InputLabel opacity={selected.name ? 1 : 0.4}>
           {selected.name ? selected.name : placeholder}
         </InputLabel>

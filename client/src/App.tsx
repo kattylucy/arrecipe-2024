@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import { ToastProvider } from "components/toast/ToastProvider";
 import styled from "styled-components";
 import RecipesPage from "pages/recipes-page";
+import PreviewPage from "pages/preview-page";
+import { RecipeProvider } from "./context/recipeContext";
 
 export const AppContainer = styled.div(({ theme: { fonts, media } }) => ({
   fontFamily: `normal, ${fonts.main}`,
@@ -16,11 +18,14 @@ export const AppContainer = styled.div(({ theme: { fonts, media } }) => ({
 function App() {
   return (
     <ToastProvider>
-      <AppContainer>
-        <Routes>
-          <Route path="/" element={<RecipesPage />} />
-        </Routes>
-      </AppContainer>
+      <RecipeProvider>
+        <AppContainer>
+          <Routes>
+            <Route path="/" element={<RecipesPage />} />
+            <Route path="/recipe" element={<PreviewPage />} />
+          </Routes>
+        </AppContainer>
+      </RecipeProvider>
     </ToastProvider>
   );
 }

@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import styled from "styled-components";
 import { TextInput } from "components/text-input/TextInput";
+import { Button } from "components/button/Button";
 
 interface Step {
   label: string;
@@ -15,11 +16,10 @@ const StepContainer = styled.div({
   marginTop: 18,
 });
 
-const StyledPlus = styled.p(({ theme: { colors, media } }) => ({
+const StyledButton = styled(Button)(({ theme: { colors } }) => ({
   color: colors.main,
   fontSize: 12,
-  marginRight: 8,
-  textAlign: "right",
+  marginLeft: "80%",
 }));
 
 export const InstructionsView: React.FC<InstructionsViewProps> = ({
@@ -47,15 +47,19 @@ export const InstructionsView: React.FC<InstructionsViewProps> = ({
   );
 
   const addStep = useCallback(() => {
-    setNumberOfSteps((prevSteps) => [
-      ...prevSteps,
-      { label: `Step ${prevSteps.length + 1}`, text: "" },
-    ]);
-  }, []);
+    if (numberOfSteps.length < 10) {
+      setNumberOfSteps((prevSteps) => [
+        ...prevSteps,
+        { label: `Step ${prevSteps.length + 1}`, text: "" },
+      ]);
+    }
+  }, [numberOfSteps]);
 
   return (
     <div>
-      <StyledPlus onClick={addStep}>Add Step</StyledPlus>
+      <StyledButton variant="text" onClick={addStep}>
+        Add Step
+      </StyledButton>
       {numberOfSteps.map((step, index) => (
         <StepContainer key={`${step.label}-${index}`}>
           <TextInput

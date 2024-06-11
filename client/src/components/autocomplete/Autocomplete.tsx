@@ -20,6 +20,7 @@ interface AutocompleteProps {
   styles?: React.CSSProperties;
   fetchUrl: string;
   defaultValue?: Array<ListItem>;
+  hideSelected?: boolean;
 }
 
 const Container = styled.div({
@@ -93,11 +94,11 @@ export const AutoComplete: React.FC<AutocompleteProps> = ({
   setValues,
   styles,
   fetchUrl,
-  defaultValue,
+  defaultValue: list = [],
+  hideSelected,
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [inputValue, setInputValue] = useState<string>("");
-  const [list, setList] = useState<ListItem[]>(defaultValue || []);
   const [visible, setVisible] = useState<boolean>(false);
   const debouncedSearchTerm = useDebounce(inputValue, 500);
 
@@ -129,7 +130,6 @@ export const AutoComplete: React.FC<AutocompleteProps> = ({
     (value: ListItem) => {
       if (!list.some((listItem) => listItem._id === value._id)) {
         const add = [...list, value];
-        setList(add);
         setInputValue("");
         setValues(id, add);
       }
@@ -140,7 +140,6 @@ export const AutoComplete: React.FC<AutocompleteProps> = ({
   const onDelete = useCallback(
     (value: ListItem) => {
       const filteredList = list.filter((item) => item._id !== value._id);
-      setList(filteredList);
       setValues(id, filteredList);
     },
     [list, setValues, id]
@@ -157,7 +156,7 @@ export const AutoComplete: React.FC<AutocompleteProps> = ({
           value={inputValue}
         />
       </InputWrapper>
-      {list.length > 0 && (
+      {list.length > 0 && !hideSelected && (
         <ListContainer>
           {list.map((item, index) =>
             item.name ? (
